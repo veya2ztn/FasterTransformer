@@ -13,18 +13,10 @@
 # limitations under the License.
 
 from __future__ import print_function
-import inspect
-import argparse
-import dataclasses
-import json
 import os
-import pathlib
-import typing
-
 import torch
 import torch.nn as nn
 import numpy as np
-import torch.distributed as dist
 
 str_type_map = {"fp32": torch.float32, "fp16": torch.float16}
 
@@ -214,16 +206,16 @@ class Llama(nn.Module):
                                       weights_data_type=weights_data_type, inference_data_type=inference_data_type)
         
         # Prepare for tensor/pipeline parallel
-        try:
-            dist.init_process_group(backend='mpi')
-        except:
-            print("[INFO] WARNING: Have initialized the process group")
-        self.rank = dist.get_rank()
+        # try:
+        #     dist.init_process_group(backend='mpi')
+        # except:
+        #     print("[INFO] WARNING: Have initialized the process group")
+        self.rank = 0
         self.device_count = torch.cuda.device_count()
         self.device = self.rank % self.device_count
         torch.cuda.set_device(self.device)
 
-        world_size = dist.get_world_size()
+        world_size = 1
         # print(tensor_para_size * pipeline_para_size)
         assert world_size == tensor_para_size * pipeline_para_size, "tensor_para_size * pipeline_para_size must be equal to world_size."
 
